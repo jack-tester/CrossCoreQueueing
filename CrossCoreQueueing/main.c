@@ -1,6 +1,8 @@
 /*
  * main.c
  *
+ * that's top be stored on GitHub for training
+ *
  *  Created on: 01.03.2016
  *      Author: Dietmar
  */
