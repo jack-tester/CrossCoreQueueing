@@ -2,6 +2,7 @@
  * main.c
  *
  * that's top be stored on GitHub for training
+ * another nice comment to be pushed upstream
  *
  *  Created on: 01.03.2016
  *      Author: Dietmar
