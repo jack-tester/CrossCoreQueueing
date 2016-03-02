@@ -8,6 +8,7 @@
  *      Author: Dietmar
  */
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -23,7 +24,7 @@ static volatile uint8_t wrIdx = 0x00;
 
 void tx_core(uint16_t txVal)
 {
-  printf("TX- %04x -> ",txVal);
+  printf("TX - %04x -> ",txVal);
 
   {
     uint32_t rdIdxCpy = rdIdx; // shot a snap of the read index
@@ -51,15 +52,30 @@ void tx_core(uint16_t txVal)
   }
 }
 
+#define DEQUEUEING_TRIGGER_OPTION     (0xA)      // 0xA or 0xB
+
+
 void rx_core(void)
 {
   uint16_t rxVal;
 
   {
+    static uint32_t lastWrIdx = 0;
+
     uint32_t wrIdxCpy = wrIdx; // shot a snap of the write index
+
+    uint32_t filled;
+
+#if DEQUEUEING_TRIGGER_OPTION == 0xA
+    /* opt. A: queue filling changed, if write index has moved */
+    filled = (wrIdxCpy != lastWrIdx) ? 1 : 0;
+    lastWrIdx = wrIdxCpy;
+
+#else
+    /* opt. B: calculate exact queue filling */
     uint32_t empty = (rdIdx > wrIdxCpy) ? rdIdx - wrIdxCpy - 1 : (Q_SLOTS-1) - wrIdxCpy + rdIdx;
-    //uint32_t filled = (wrIdxCpy >= rdIdx) ? (wrIdxCpy - rdIdx) : ((Q_SLOTS-1) - rdIdx + wrIdxCpy);
-    uint32_t filled = Q_SLOTS - empty - 1;
+    filled = Q_SLOTS - empty - 1;
+#endif
 
     if (filled >= 1)
     {
@@ -135,6 +151,35 @@ int main(void)
   rx_core();
   rx_core();
   rx_core();
+  rx_core();
+
+  tx_core(0xA020);
+  rx_core();
+  tx_core(0xA021);
+  rx_core();
+  tx_core(0xA022);
+  rx_core();
+  tx_core(0xA023);
+  rx_core();
+  tx_core(0xA024);
+  rx_core();
+  tx_core(0xA025);
+  rx_core();
+  tx_core(0xA026);
+  rx_core();
+  tx_core(0xA027);
+  rx_core();
+  tx_core(0xA028);
+  rx_core();
+  tx_core(0xA029);
+  rx_core();
+  tx_core(0xA030);
+  rx_core();
+  tx_core(0xA031);
+  rx_core();
+  tx_core(0xA032);
+  rx_core();
+  tx_core(0xA033);
   rx_core();
 
   exit(0);
